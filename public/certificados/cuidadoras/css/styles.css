@@ -1,0 +1,89 @@
+@charset "UTF-8";
+/* CSS Document */
+
+.fono a {
+  text-decoration: none !important;
+}
+header.fondo-header {
+  background: url("../img/banner-RSH-2022-2.jpg") center top repeat-x;
+}
+header.certificado {
+	background-image: url("../img/bg_header.png");
+}
+header .logo-mdsyf img {
+  max-width: 90%;
+}
+header .logo-rsh {
+  background-color: #ffffff;
+  text-align: center;
+  padding: 20px;
+}
+header .logo-rsh img {
+  max-width: 90%;
+  vertical-align: middle;
+  display: inline-block;
+}
+header .fono {
+  background-color: #e34c4d;
+  color: #fff;
+  text-align: center;
+  padding: 5px;
+  font-weight: bold;
+}
+.div-block {
+  height: auto;
+  margin: 0px;
+  padding: 0px;
+  background: rgb(127, 3, 100);
+  background: linear-gradient(90deg, rgba(127, 3, 100, 1) 0%, rgba(183, 37, 78, 1) 100%);
+}
+.bg_certificado {
+  height: auto;
+  margin: 0px;
+  padding: 0px;
+  background: #7E93C9;
+
+}
+.bg_certificado_body {
+    height: auto;
+    margin: 0px;
+    padding: 0px;
+    background: #fff!important;
+
+}
+
+.titulo {
+	color: #7E93C9;
+}
+
+@media (max-width:990px) {
+  header .fono p {
+    font-size: 14px;
+  }
+  header .fono svg {
+    width: 16px;
+  }
+}
+@media (max-width:500px) {
+  header.fondo-header {
+    background: url("../img/banner-RSH-2022-1.jpg") center top repeat-x;
+  }
+}
+@media print {
+a[href]:after {
+  content: " ("attr(href) ")";
+}
+article {
+  page-break-before: always;
+}
+h2 {
+  page-break-after: always;
+}
+div {
+  page-break-inside: avoid;
+}
+p {
+  widows: 3;
+  orphans: 3;
+}
+}

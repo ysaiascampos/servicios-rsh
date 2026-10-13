@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="445.26663"
+   height="46.474323"
+   viewBox="0 0 445.26663 46.474323"
+   version="1.1"
+   id="svg3753"
+   sodipodi:docname="logo-mds-extend-2.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+  <metadata
+     id="metadata3759">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>Group 2</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs3757" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
+     id="namedview3755"
+     showgrid="false"
+     showguides="false"
+     inkscape:zoom="3.2207447"
+     inkscape:cx="-78.145447"
+     inkscape:cy="28.386183"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="Page-1" />
+  <!-- Generator: Sketch 52.4 (67378) - http://www.bohemiancoding.com/sketch -->
+  <title
+     id="title3737">Group 2</title>
+  <desc
+     id="desc3739">Created with Sketch.</desc>
+  <g
+     id="Page-1"
+     style="fill:none;fill-rule:evenodd;stroke:none;stroke-width:1"
+     transform="translate(0,-0.52567538)">
+    <g
+       id="g3779">
+      <g
+         transform="translate(-231,-853)"
+         id="02_cambio-domicilio_pregunta1">
+        <g
+           transform="translate(-2,679)"
+           id="Group-5">
+          <g
+             id="Group-22">
+            <g
+               transform="translate(0,141)"
+               id="Group-15">
+              <g
+                 id="Group-17">
+                <g
+                   id="Group-16">
+                  <g
+                     transform="translate(233,33)"
+                     id="Group-2">
+                    <polygon
+                       style="fill:#0f69b4;fill-rule:nonzero"
+                       points="92,47 0,47 0,39 92,39 "
+                       id="Rectangle-5" />
+                    <rect
+                       style="fill:#eb3646;fill-rule:nonzero"
+                       height="8"
+                       width="108"
+                       y="39"
+                       x="92"
+                       id="rect3742" />
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <text
+         transform="scale(0.96653825,1.0346202)"
+         id="text3763"
+         y="12.94734"
+         x="-0.4632563"
+         style="font-style:normal;font-weight:normal;font-size:47.00487518px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#898A8A;fill-opacity:1;stroke:none;stroke-width:1.17512178"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:17.08624649px;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:1.17512178"
+           y="12.94734"
+           x="-0.4632563"
+           id="tspan3761"
+           sodipodi:role="line">Ministerio de Desarrollo Social y Familia - Gobierno de  Chile</tspan><tspan
+           id="tspan3765"
+           style="font-size:15.66829109px;stroke-width:1.17512178"
+           y="71.70343"
+           x="-0.4632563"
+           sodipodi:role="line" /></text>
+    </g>
+  </g>
+</svg>

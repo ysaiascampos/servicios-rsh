@@ -1,0 +1,312 @@
+<?php
+
+
+namespace App\Clases;
+
+
+use App\Constantes\Constante;
+use App\Exceptions\ExcepcionReglaNegocio;
+use App\Exceptions\ExcepcionValidacion;
+use App\Http\Inputs\TramiteInput;
+use App\Models\Ficha;
+use App\Models\Personas;
+use App\Models\GrupoFamiliar;
+use App\Models\NNARepresentanteMigrante;
+use App\Exceptions\ExcepcionConsistencia;
+use App\Models\BeneficiarioGrupoFamiliar;
+use App\Sequence;
+use Illuminate\Support\Facades\DB;
+
+class ModuloOcupacionIngresos extends TramiteActualizacion
+{
+    public $tipoSolicitud = Constante::TIPO_SOLICITUD_14_ACTUALIZACION_OCUPACION_DE_INGRESOS;
+    public $nombreSolicitud = 'Solicitud de Actualización del Módulo Ocupación e Ingresos';
+
+    public $crea_solicitud = false;
+    public $fichaVigente;
+    public $fichaSolicitudActual;
+    public $solTieneMontoMensual;
+
+    private $requiereCamposObligatorios;
+    protected $requiereDocumentosAdjuntos;
+
+    public function editarSolicitud()
+    {
+        $this->validacionGuardadoSolicitud();
+        $this->validarRespuestasIngreso();
+        $this->validarAdjuntosRequeridos();
+
+        $this->verificarFirmaSimple();
+        $this->guardarSolicitud([]);
+        $this->generarPdfFirmaSimple();
+    }
+
+    public function enDigitacion()
+    {
+        $this->requiereCamposObligatorios = true;
+        $this->requiereDocumentosAdjuntos = false;
+
+        $this->editarSolicitud();
+    }
+
+    public function pendienteDocumentos()
+    {
+        $this->requiereCamposObligatorios = true;
+        $this->requiereDocumentosAdjuntos = false;
+
+        $this->editarSolicitud();
+    }
+
+    public function pendienteResolver()
+    {
+        $this->requiereCamposObligatorios = true;
+        $this->requiereDocumentosAdjuntos = true;
+
+        $this->editarSolicitud();
+    }
+
+    public function devolverGestion()
+    {
+        if (empty($this->observacion)) {
+            throw ExcepcionValidacion::new('El campo observacion es requerido.')
+                ->setOrigen('observacion');
+        }
+        $this->requiereCamposObligatorios = true;
+        $this->requiereDocumentosAdjuntos = true;
+
+        $this->editarSolicitud();
+    }
+
+    protected function cargarDataTramite()
+    {
+        $this->solTieneMontoMensual = FichaIngresoMensual::check(
+            $this->solicitud->FECHA_CREACION,
+            $this->solicitud->FECHA_CREACION_CIUDADANO
+        );
+
+        $this->fichaSolicitudActual = Ficha::findDetallePersonaByIdSolicitud(
+            $this->solicitud->ID_SOLICITUD,
+            $this->solTieneMontoMensual
+        );
+
+        $this->fichaVigente = Ficha::findDetallePersonaByIdPersona($this->fichaSolicitudActual->FICHA_PERSONA);
+
+        if (isset($this->solicitud->MIGRANTE) && $this->solicitud->MIGRANTE == 1) {
+
+            $this->nombreSolicitud = 'Solicitud de Actualización Ocupación e Ingresos de NNA';
+        }
+
+        $this->obtenerPreguntasYRespuestasESOV($this->solicitud->ORIGEN_REGISTRO);
+    }
+
+    protected function definirTitular(TramiteInput $input)
+    {
+        $titular = null;
+        $localInput = $input->tipoSolicitud->{$this->tipoSolicitud};
+        if ($this->solicitante->PER_RUN == $localInput->runTitular) {
+            $titular = $this->solicitante;
+        } else {
+            $titular = Personas::findByRun($localInput->runTitular);
+        }
+        return $titular;
+    }
+
+    protected function consultarTitular()
+    {
+        $this->titular = Personas::find($this->solicitud->DATO_ACTUAL);
+    }
+
+    protected function obtenerPersonasAsociadas()
+    {
+        $this->personasAsociadas = [$this->titular];
+    }
+
+    public function agendado()
+    {
+        return null;    // no aplica
+    }
+
+    protected function guardarSolicitud(array $data)
+    {
+        DB::beginTransaction();
+        try {
+
+            $nuevoFolio = $this->obtenerNuevoFolio();
+            $idPersona = $this->input->id;
+
+            $this->obtenerFicha();
+
+            $this->fichaSolicitudActual->FICHA_PERSONA = $idPersona;
+            $this->fichaSolicitudActual->FICHA_VIGENTE = Constante::VIGENTE_2_PENDIENTE;
+
+            //Informacion que corresponde a modulo ingreso
+            $this->fichaSolicitudActual->FICHA_TRABAJA = $this->input->o1;
+            $this->fichaSolicitudActual->FICHA_OCUPACIONACTUAL = $this->input->o2;
+            $this->fichaSolicitudActual->FICHA_CODIGOSRAMA = $this->input->o3;
+            $this->fichaSolicitudActual->FICHA_TEMPORALIDADPERMANENCIA = $this->input->o4;
+            $this->fichaSolicitudActual->FICHA_CODIGOCONTRATO = $this->input->o5;
+            $this->fichaSolicitudActual->FICHA_RELACIONCONTRACTUAL = $this->input->o6;
+            $this->fichaSolicitudActual->FICHA_HORASTRABAJO = $this->input->o7;
+            $this->fichaSolicitudActual->FICHA_BUSCOTRABAJO = $this->input->o8;
+            $this->fichaSolicitudActual->FICHA_NOBUSCOTRABAJOMOTIVO = $this->input->o9;
+            $this->fichaSolicitudActual->FICHA_INGRESOANUAL = $this->input->y1;
+            $this->fichaSolicitudActual->FICHA_INGRESOJUBILACION = $this->input->y2;
+            $this->fichaSolicitudActual->FICHA_INGRESOOTROS = $this->input->y3;
+
+            if (empty($this->solicitud)) {
+                $this->crea_solicitud = true;
+                $this->solTieneMontoMensual = FichaIngresoMensual::check(now(), now());
+            }
+
+            if ($this->solTieneMontoMensual) {
+                $this->fichaSolicitudActual->FICHA_INGRESOANUAL =
+                    intval($this->input->get('y1-m1')) +
+                    intval($this->input->get('y1-m2')) +
+                    intval($this->input->get('y1-m3')) +
+                    intval($this->input->get('y1-m4')) +
+                    intval($this->input->get('y1-m5')) +
+                    intval($this->input->get('y1-m6')) +
+                    intval($this->input->get('y1-m7')) +
+                    intval($this->input->get('y1-m8')) +
+                    intval($this->input->get('y1-m9')) +
+                    intval($this->input->get('y1-m10')) +
+                    intval($this->input->get('y1-m11')) +
+                    intval($this->input->get('y1-m12'));
+
+                $this->fichaSolicitudActual->FICHA_INGRESOJUBILACION =
+                    intval($this->input->get('y2-m1')) +
+                    intval($this->input->get('y2-m2')) +
+                    intval($this->input->get('y2-m3')) +
+                    intval($this->input->get('y2-m4')) +
+                    intval($this->input->get('y2-m5')) +
+                    intval($this->input->get('y2-m6')) +
+                    intval($this->input->get('y2-m7')) +
+                    intval($this->input->get('y2-m8')) +
+                    intval($this->input->get('y2-m9')) +
+                    intval($this->input->get('y2-m10')) +
+                    intval($this->input->get('y2-m11')) +
+                    intval($this->input->get('y2-m12'));
+            } else {
+                $this->fichaSolicitudActual->FICHA_INGRESOANUAL = $this->input->get('y1');
+                $this->fichaSolicitudActual->FICHA_INGRESOJUBILACION = $this->input->get('y2');
+            }
+
+            if ($this->titular->PER_EDAD < Constante::EDAD_15_PUEDE_TRABAJAR) {
+                $this->fichaSolicitudActual->FICHA_INGRESOANUAL = null;
+                $this->fichaSolicitudActual->FICHA_INGRESOOTROS = null;
+            }
+
+            $datoActual = $idPersona;
+            $datoNuevo = $this->fichaSolicitudActual->FICHA_ID;
+
+            $this->obtenerRegistroSolicitud($datoActual, $datoNuevo, $nuevoFolio);
+
+            $this->fichaSolicitudActual->FICHA_IDSOLICITUD = $this->solicitud->ID_SOLICITUD;
+            $integrante = array();
+            $integrante = $this->input->all();
+            $integrante['mensual_id_persona'] = $idPersona;
+
+            if ($this->crea_solicitud) {
+                FichaIngresoMensual::guardarFichaMontoMensual(
+                    $integrante,
+                    $this->fichaSolicitudActual->FICHA_ID,
+                    $this->solicitud->ID_SOLICITUD,
+                    $idPersona
+                );
+            } else {
+                FichaIngresoMensual::actualizarFichaMontoMensual(
+                    $integrante,
+                    $this->fichaSolicitudActual->FICHA_ID,
+                    $this->solicitud->ID_SOLICITUD,
+                    Constante::VIGENTE_2_PENDIENTE,
+                    $this->solicitud->FECHA_CREACION,
+                    $this->solicitud->FECHA_CREACION_CIUDADANO,
+                    $idPersona
+                );
+            }
+
+            $this->fichaSolicitudActual->save();
+            $this->solicitud->save();
+
+            DB::commit();
+        } catch (Throwable $ex) {
+            DB::rollback();
+            throw $ex;
+        }
+    }
+
+    private function validarRespuestasIngreso()
+    {
+        $validador = new ValidadorIngreso();
+        if (!$validador->validarRespuestasIngreso($this->input)) {
+            $this->addErrorWrapper($validador->errors);
+        }
+        if (!empty($this->errors)) {
+            throw new ExcepcionReglaNegocio($this->errors);
+        }
+    }
+
+    public function validarAdjuntosRequeridos()
+    {
+        if ($this->requiereDocumentosAdjuntos) {
+            if (!(new Adjuntos)->validarDocumentosRequeridos($this->solicitud)) {
+                throw new ExcepcionReglaNegocio(
+                    'No se han adjuntado todos los documentos requeridos.',
+                    Constante::ERR_NEGOCIO_ADJUNTOS_REQUERIDOS
+                );
+            }
+        }
+    }
+
+    protected function actualizarRegistrosAprobacion()
+    {
+        $this->fichaSolicitudActual->FICHA_VIGENTE = Constante::VIGENTE_1_VIGENTE;
+        $this->fichaSolicitudActual->FICHA_CALCULOACTIVO = Constante::CALCULO_ACTIVO_1_APROBADO;
+        $this->fichaSolicitudActual->FICHA_DIFICVISUAL = $this->fichaVigente->FICHA_DIFICVISUAL;
+        $this->fichaSolicitudActual->FICHA_DIFICAUDITIVA = $this->fichaVigente->FICHA_DIFICAUDITIVA;
+        $this->fichaSolicitudActual->FICHA_DIFICHABLA = $this->fichaVigente->FICHA_DIFICHABLA;
+        $this->fichaSolicitudActual->FICHA_DIFICFISICA = $this->fichaVigente->FICHA_DIFICFISICA;
+        $this->fichaSolicitudActual->FICHA_DIFICMENTAL = $this->fichaVigente->FICHA_DIFICMENTAL;
+        $this->fichaSolicitudActual->FICHA_DIFICPSIQUICA = $this->fichaVigente->FICHA_DIFICPSIQUICA;
+
+        $this->fichaSolicitudActual->FICHA_CALLESINAYUDA = $this->fichaVigente->FICHA_CALLESINAYUDA;
+        $this->fichaSolicitudActual->FICHA_MEDICOSINAYUDA = $this->fichaVigente->FICHA_MEDICOSINAYUDA;
+        $this->fichaSolicitudActual->FICHA_ASEOSINAYUDA = $this->fichaVigente->FICHA_ASEOSINAYUDA;
+        $this->fichaSolicitudActual->FICHA_DESPLAZAMIENTOENCASA = $this->fichaVigente->FICHA_DESPLAZAMIENTOENCASA;
+        $this->fichaSolicitudActual->FICHA_CTRLESFINTERES = $this->fichaVigente->FICHA_CTRLESFINTERES;
+
+        $this->fichaSolicitudActual->FICHA_CONDICIONDISCAPACIDAD = $this->fichaVigente->FICHA_CONDICIONDISCAPACIDAD;
+
+        $this->fichaSolicitudActual->FICHA_TRABAJA = $this->fichaVigente->FICHA_TRABAJA;
+        $this->fichaSolicitudActual->FICHA_OCUPACIONACTUAL = $this->fichaVigente->FICHA_OCUPACIONACTUAL;
+        $this->fichaSolicitudActual->FICHA_CODIGOSRAMA = $this->fichaVigente->FICHA_CODIGOSRAMA;
+        $this->fichaSolicitudActual->FICHA_TEMPORALIDADPERMANENCIA = $this->fichaVigente->FICHA_TEMPORALIDADPERMANENCIA;
+        $this->fichaSolicitudActual->FICHA_CODIGOCONTRATO = $this->fichaVigente->FICHA_CODIGOCONTRATO;
+        $this->fichaSolicitudActual->FICHA_RELACIONCONTRACTUAL = $this->fichaVigente->FICHA_RELACIONCONTRACTUAL;
+        $this->fichaSolicitudActual->FICHA_HORASTRABAJO = $this->fichaVigente->FICHA_HORASTRABAJO;
+        $this->fichaSolicitudActual->FICHA_BUSCOTRABAJO = $this->fichaVigente->FICHA_BUSCOTRABAJO;
+        $this->fichaSolicitudActual->FICHA_NOBUSCOTRABAJOMOTIVO = $this->fichaVigente->FICHA_NOBUSCOTRABAJOMOTIVO;
+        $this->fichaSolicitudActual->FICHA_INGRESOANUAL = $this->fichaVigente->FICHA_INGRESOANUAL;
+        $this->fichaSolicitudActual->FICHA_INGRESOOTROS = $this->fichaVigente->FICHA_INGRESOOTROS;
+        $this->fichaSolicitudActual->FICHA_INGRESOJUBILACION = $this->fichaVigente->ficha_ingresojubilacion;
+
+        $this->fichaSolicitudActual->save();
+
+        $this->fichaVigente->FICHA_CALCULOACTIVO = Constante::CALCULO_ACTIVO_2_PENDIENTE;
+        $this->fichaVigente->save();
+    }
+
+    private function obtenerFicha()
+    {
+        if (empty($this->fichaSolicitudActual)) {
+
+            $fichaActual = Ficha::findByIdPersona($this->input->id);
+            $this->fichaSolicitudActual = $fichaActual->replicate();
+
+            unset($this->fichaSolicitudActual->RN);
+            $this->fichaSolicitudActual->FICHA_ID = Sequence::nextValue('SEQ_FICHAPK');
+            $this->fichaSolicitudActual->FICHA_CALCULOACTIVO = Constante::CALCULO_ACTIVO_2_PENDIENTE;
+            $this->fichaSolicitudActual->FICHA_FUENTE = Constante::FUENTE_INGRESO_100_SOLICITADO_POR_SISTEMA_WEB;
+        }
+    }
+}

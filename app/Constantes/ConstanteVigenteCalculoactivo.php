@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Constantes;
+
+/**
+ * Class Constante
+ * EJ: Constante::STATUS_200_SUCCESS_OK;
+ *
+ * Para cambiar nombre se debe presionar SHIFT+F6 sobre la constante
+ *    así el cambio se refleja en todas los archivos donde se llama
+ */
+abstract class ConstanteVigenteCalculoactivo
+{
+    /**
+     * Tabla ASIGNACION.ESTADOS
+     * Ocupado en campo VIGENTE de tabla AB_SOLICITUD
+     */
+    const VIGENTE_SOLICITUD_1_VIGENTE = 1; // para mostrar o no mostar la solicitud
+    const VIGENTE_SOLICITUD_2_PENDIENTE = 2;
+    const VIGENTE_SOLICITUD_3_SOLICITUD_BORRADOR = 3;
+
+    /**
+     * Tabla ASIGNACION.ESTADOS
+     * Ocupado en campo GRUPFAMI_VIGENTE, BNFGRUPFAMI_VIGENTE, PER_VIGENTE, FICHA_VIGENTE, VIGENTE
+     *   de tablas GRUPOS_FAMILIARES, BENEFICIARIOS_GRUPOSFAMILIARES, PERSONAS, FICHAS, AB_COMPLEMENTO_EDUCACION,
+     *             EVER_SUPER_SALUD_COTIZANTES, TBL_SUPER_SALUD_CARGAS
+     */
+    const VIGENTE_1_VIGENTE = 1; // Información aprobada por el encargado
+    const VIGENTE_2_PENDIENTE = 2; // VIGENTE_2_NO_VIGENTE en tabla ESTADOS
+    const VIGENTE_3_SOLICITUD_BORRADOR = 3;
+    const VIGENTE_5_DESACTIVADO_POR_LEY = 5;
+    const VIGENTE_6_CAMBIO_EXTRAORDINARIO_MARZO_2016 = 6;
+    const VIGENTE_14_INACTIVO_POR_DEFUNCION = 14;
+    const VIGENTE_15_ERROR_NO_VIGENTE = 15;
+    const VIGENTE_31_OFICIO_2922_2016_11 = 31;
+    const VIGENTE_32_MEMO_017_2017 = 32;
+
+    /**
+     * Tabla ASIGNACION.ESTADOS
+     * Ocupado en campo GRUPFAMI_CALCULOACTIVO, BNFGRUPFAMI_CALCULOACTIVO, FICHA_CALCULOACTIVO, CALCULOACTIVO
+     *   de tablas GRUPOS_FAMILIARES, BENEFICIARIOS_GRUPOSFAMILIARES, FICHAS, AB_COMPLEMENTO_COTIZASALUD,
+     *             EVER_SUPER_SALUD_COTIZANTES, TBL_SUPER_SALUD_CARGAS
+     */
+    const CALCULO_ACTIVO_0 = 0; // ? se guarda así en tabla AB_COMPLEMENTO_SALUD y AB_COMPLEMENTO_EDUCACION
+    const CALCULO_ACTIVO_1_APROBADO = 1;  // activa para algoritmo de calculo
+    const CALCULO_ACTIVO_2_PENDIENTE = 2; // 2_NO_VIGENTE en tabla ESTADOS
+    const CALCULO_ACTIVO_3_SOLICITUD_BORRADOR = 3;
+    const CALCULO_ACTIVO_5_DESACTIVADO_POR_LEY = 5;
+    const CALCULO_ACTIVO_6_CAMBIO_EXTRAORDINARIO_MARZO_2016 = 6;
+    const CALCULO_ACTIVO_14_INACTIVO_POR_DEFUNCION = 14;
+    const CALCULO_ACTIVO_15_ERROR_NO_VIGENTE = 15;
+    const CALCULO_ACTIVO_31_OFICIO_2922_2016_11 = 31;
+    const CALCULO_ACTIVO_32_MEMO_017_2017 = 32;
+
+    public static $vigenteSegunAccionNoMunicipal = [
+        Constante::ACCION_BORRADOR_VA_ESTADO_11_VIGENTE_3 => Constante::VIGENTE_3_SOLICITUD_BORRADOR,
+        Constante::ACCION_AGENDAR_VA_ESTADO_11_SUBESTADO_14 => Constante::VIGENTE_1_VIGENTE,
+        Constante::ACCION_AGENDAR_ETAPA1_VA_ESTADO_11_SUBESTADO_14 => Constante::VIGENTE_1_VIGENTE,
+        Constante::ACCION_AGENDADO_VA_ESTADO_2 => Constante::VIGENTE_1_VIGENTE,
+        Constante::ACCION_GESTION_VA_ESTADO_3 => Constante::VIGENTE_1_VIGENTE,
+        Constante::ACCION_GESTION_DOCUMENTOS_COMPLETOS_VA_ESTADO_3 => Constante::VIGENTE_1_VIGENTE,
+        Constante::ACCION_RESOLVER_VA_ESTADO_4 => Constante::VIGENTE_1_VIGENTE,
+        Constante::ACCION_DESISTIR_VA_ESTADO_9 => Constante::VIGENTE_1_VIGENTE,
+        Constante::ACCION_DESISTIR_SUPERVISION_VA_ESTADO_9 => Constante::VIGENTE_2_PENDIENTE,
+        Constante::ACCION_CONFIRMAR_VA_ESTADO_17 => Constante::VIGENTE_1_VIGENTE,
+        Constante::ACCION_DOCUMENTOS_VA_ESTADO_1 => Constante::VIGENTE_1_VIGENTE
+    ];
+
+}

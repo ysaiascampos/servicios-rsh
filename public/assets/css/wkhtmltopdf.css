@@ -1,0 +1,24 @@
+/*CSS FLEX PROPERTIES ADAPTED FOR -WEBKIT OLD STANDARD*/
+
+.row {
+    display: -webkit-box;
+    display: -webkit-flex;
+    -webkit-flex-wrap: wrap;
+}
+
+.card {
+    display: -webkit-box;
+    display: -webkit-flex;
+    -webkit-box-lines: multiple;
+    -webkit-box-orient: vertical;
+    -webkit-flex-direction: column;
+    background-color:transparent;
+    border-color: #ADADAD!important;
+}
+.justify-content-between {
+    -webkit-box-pack: justify;
+}
+
+.justify-content-center {
+    -webkit-box-pack: center;
+}

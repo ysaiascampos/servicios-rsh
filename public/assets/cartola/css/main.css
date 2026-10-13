@@ -1,0 +1,48 @@
+
+#graficoCSE .activo {
+    background-color: #292929;
+    color: #fff;
+}
+#graficoCSE img {
+    display: none;
+}
+#graficoCSE .activo img {
+    max-width: 70px;
+    display: block;
+    margin: -35px auto 5px auto;
+}
+@media (max-width: 739px) {
+    #tramo0040 {width: 20% !important }
+    #tramo4150, #tramo5160, #tramo6170, #tramo7180, #tramo8190, #tramo91100 {width: 10% !important }
+    #tramo-tramo {display: block !important;}
+    .tramo-pregunta, .tramo-hogar { width: 100% !important}
+    .tramo-titulo { width: 20% !important}
+    .tramo-numero { width: 80% !important}
+    table#hogar thead {
+        display: none;
+    }
+    table#hogar td {
+        /*display: block;*/
+        text-align: left;
+        /*font-size: 13px;*/
+        border-bottom: 1px dotted #ccc;
+        font-weight: bold;
+    }
+    table#hogar.no-style td {
+        display: table-cell !important;
+
+    }
+    table#hogar td:before {
+        content: attr(data-label);
+        text-transform: uppercase;
+        font-weight: normal;
+        margin-right: 10px;
+        margin-bottom: 10px
+    }
+    table#hogar tr {
+        border-bottom: 10px solid #575756;
+    }
+}
+.page_break {
+    page-break-before: always;
+}

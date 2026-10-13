@@ -1,0 +1,158 @@
+body {
+    font-size: 0.825rem;
+}
+
+h5 {
+    font-size: 0.9rem;
+}
+
+h6,
+p {
+    font-size: 0.825rem;
+}
+
+header, section {
+    margin-bottom: .5rem;
+}
+
+.wrapper {
+    max-width: 1000px;
+}
+
+.header-title {
+}
+
+.header-info {
+    padding: 1rem;
+}
+
+.header-info__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.header-info__list li span,
+.user-info h6,
+.card-title {
+    font-weight: 600;
+}
+
+.cartola-title {
+    font-size: .975rem;
+}
+
+main {
+    display: grid;
+    gap: 1rem;
+}
+
+.user-info h6:first-child {
+    font-weight: normal;
+}
+
+.table tr:first-child td,
+.table tr:first-child th {
+    border-top: none;
+}
+.sign-form,
+.sign-form__item {
+    font-size: 0.9rem;
+}
+
+.sign-form__item {
+    width: 100%;
+    padding: 0 .5rem;
+    margin: 0 .2rem;
+}
+
+.sign-form__item small {
+    font-size: .765rem;
+    font-weight: 500;
+    color: #343a40;
+}
+
+.sign-form__item .not-signed {
+    margin-top: 4.4rem;
+}
+.calif-economica .calif-economica__list {
+    margin-left: .25rem;
+}
+.calif-economica .calif-economica__list span {
+    padding: 0 .875rem;
+    margin: 0.2rem 0;
+    font-weight: bold;
+}
+.calif-economica .calif-economica__list span.selected {
+    background: #343a40;
+    color: #fff;
+    border-radius: 4px;
+}
+.calif-economica .calif-economica__info {
+    font-weight: 600;
+    font-size: 0.7rem;
+    line-height: 1;
+}
+.source-form {
+    color: #343a40;
+    font-size: .765rem;
+    font-weight: 400;
+    margin-top: .125rem;
+    margin-bottom: .125rem;
+    text-align: right;
+}
+.source-form span {
+    font-weight: 600;
+}
+.firm {
+   position: relative;
+}
+.card-table td {
+    width: 10rem;
+}
+.card-table th {
+    width: 14rem;
+}
+.card-table th, .card-table td {
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+}
+
+.total-ingresos {
+    -webkit-box-align: center!important;
+}
+
+.border {
+    border-color: #ADADAD!important;
+}
+
+small {
+    font-size: .765rem;
+    font-weight: 500;
+}
+table, th, td {
+    border-color: #ADADAD!important;
+}
+th {
+    border-bottom: 1px solid #ADADAD!important;
+}
+.table th, .table td {
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+}
+.text-muted {
+    color: #343a40;
+}
+div {
+    page-break-inside: avoid;
+}
+
+
+
+
+
+
+
+
+
+

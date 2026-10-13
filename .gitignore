@@ -1,0 +1,27 @@
+/node_modules
+/public/hot
+/storage/*.key
+/vendor
+/.idea
+.env
+.env.backup
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+http-client.env.json
+*.bat
+.vscode/launch.json
+.vscode/settings.json
+/storage
+*.log
+*.cl-access_log
+*.cl-error_log
+
+# Certificados y archivos sensibles
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
