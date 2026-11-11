@@ -27,7 +27,8 @@
         "maatwebsite/excel": "^3.1",
         "rap2hpoutre/laravel-log-viewer": "*",
         "simplesoftwareio/simple-qrcode": "^4.1",
-        "yajra/laravel-oci8": "^7.0"
+        "yajra/laravel-oci8": "^7.0",
+        "validador/core": "dev-master"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.8",
@@ -74,5 +75,11 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ]
-    }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://git.mds.cl/publico/packages/rsh/validador-rfc.git"
+        }
+    ]
 }
