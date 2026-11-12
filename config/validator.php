@@ -75,45 +75,70 @@ return array(
     | Database Validation Settings
     |--------------------------------------------------------------------------
     |
-    | Configure which database objects to validate. Each flag enables or
-    | disables validation for that specific object type.
+    | Everything that must be reviewed in the database is declared here; it is
+    | no longer accepted from the API request. Object names are relative to the
+    | schema key (fully qualified names are accepted too).
     |
     */
     'database' => array(
 
-        'schemas'    => true,
-        'tables'     => true,
-        'columns'    => array(
-            'enabled'    => true,
-            'types'      => true,
-            'length'     => true,
-            'nullable'   => true,
-            'defaults'   => true,
-        ),
-        'functions'  => true,
-        'procedures' => true,
-        'sequences'  => true,
-        'views'      => true,
-        'triggers'   => true,
-        'packages'   => true,
-        'synonyms'   => true,
-        'indexes'    => true,
-        'keys'       => array(
-            'primary'   => true,
-            'foreign'   => true,
-        ),
-        'constraints' => true,
+        /*
+        | Connections (config/database.php) to validate. Empty = only
+        | "default_connection". Each connection is mapped to its schema through
+        | the "connections" key at the root of this file.
+        */
+        'connections' => array(),
 
         /*
-        |--------------------------------------------------------------------------
-        | Expected Schema Definitions
-        |--------------------------------------------------------------------------
+        | Expected database structure, nested by schema. Supported keys:
+        | tables (with columns/primary_keys/indexes/foreign_keys/constraints),
+        | columns, column_types, column_lengths, nullable, defaults, functions,
+        | procedures, sequences, views, triggers, packages, synonyms, indexes,
+        | primary_keys, foreign_keys and constraints.
         |
-        | Define the expected database structure for validation. Each schema
-        | can list expected tables, their columns, and other objects.
+        | Example:
         |
+        | 'ASIGNACION' => array(
+        |     'tables' => array(
+        |         'PERSONAS' => array(
+        |             'columns' => array(
+        |                 'RUT' => array('type' => 'VARCHAR2', 'length' => 10, 'nullable' => false),
+        |             ),
+        |             'primary_keys' => true,
+        |             'indexes' => array('IDX_PERSONAS_RUT'),
+        |         ),
+        |     ),
+        |     'functions' => array('GET_PERSONA'),
+        | ),
         */
         'expected_schemas' => array(),
+
+        /*
+        | Optional flat checklist (merged with expected_schemas), with fully
+        | qualified names:
+        |
+        | 'checklist' => array(
+        |     'schemas'       => array('ASIGNACION'),
+        |     'tables'        => array('ASIGNACION.PERSONAS'),
+        |     'columns'       => array('ASIGNACION.PERSONAS.RUT'),
+        |     'column_types'  => array('ASIGNACION.PERSONAS.RUT' => 'VARCHAR2'),
+        |     'column_lengths'=> array('ASIGNACION.PERSONAS.RUT' => 10),
+        |     'nullable'      => array('ASIGNACION.PERSONAS.RUT' => false),
+        |     'defaults'      => array('ASIGNACION.PERSONAS.RUT' => null),
+        |     'functions'     => array('ASIGNACION.GET_PERSONA'),
+        |     'procedures'    => array('ASIGNACION.SP_PERSONA'),
+        |     'sequences'     => array('ASIGNACION.SEQ_PERSONA'),
+        |     'views'         => array('ASIGNACION.V_PERSONAS'),
+        |     'triggers'      => array('ASIGNACION.TRG_PERSONAS'),
+        |     'packages'      => array('ASIGNACION.PKG_PERSONA'),
+        |     'synonyms'      => array('ASIGNACION.SIN_PERSONA'),
+        |     'indexes'       => array('ASIGNACION.PERSONAS.IDX_PERSONAS_RUT'),
+        |     'primary_keys'  => array('ASIGNACION.PERSONAS'),
+        |     'foreign_keys'  => array('ASIGNACION.PERSONAS.FK_PERSONAS_GRUPO'),
+        |     'constraints'   => array('ASIGNACION.PERSONAS.CK_PERSONAS_ESTADO'),
+        | ),
+        */
+        'checklist' => array(),
 
     ),
 
@@ -123,8 +148,10 @@ return array(
     |--------------------------------------------------------------------------
     |
     | Define validation rules for environment variables. The required list is
-    | checked by default against the project's connection variables. Sensitive
-    | variables (PASSWORD, TOKEN, SECRET, KEY) are never validated or exposed.
+    | checked by default against the project's connection variables. Variables
+    | whose name contains PASSWORD, TOKEN, SECRET or KEY are protected: their
+    | value is never shown, but their presence and their value rules are
+    | validated (values are masked as "***" in messages).
     |
     */
     'env' => array(
