@@ -114,11 +114,24 @@ class ApiRunificador extends Controller
 
         if (Cache::has($cacheKey)) {
 
-            Log::info('Runificador cache hit', [
+            $cacheada = Cache::get($cacheKey);
+
+            if ($this->personaTieneDatos($cacheada)) {
+
+                Log::info('Runificador cache hit', [
+                    'run' => $runCiudadano
+                ]);
+
+                return $cacheada;
+            }
+
+            // Respuesta inválida cacheada (por ejemplo, RC desactivado con
+            // Estado "OK" y datos vacíos): se descarta y se vuelve a consultar.
+            Cache::forget($cacheKey);
+
+            Log::warning('Runificador cache invalidado: respuesta sin datos', [
                 'run' => $runCiudadano
             ]);
-
-            return Cache::get($cacheKey);
         }
 
         $urlMetodo = env('RUNIFICADOR_REST_URL_METODO');
@@ -177,6 +190,26 @@ class ApiRunificador extends Controller
                     $personaWs->Estado === 'OK-CACHE'
                 ) {
 
+                    if (!$this->personaTieneDatos($personaWs)) {
+
+                        $glosa = isset($personaWs->Glosa) ? $personaWs->Glosa : null;
+
+                        Log::warning('Runificador respondió OK sin datos de la persona', [
+                            'run'    => $runCiudadano,
+                            'dv'     => $dv,
+                            'estado' => $personaWs->Estado,
+                            'glosa'  => $glosa,
+                        ]);
+
+                        // No se cachea una respuesta sin datos: si el RC está
+                        // desactivado, contaminaría las consultas posteriores.
+                        if ($this->glosaIndicaRegistroCivilNoDisponible($glosa)) {
+                            return Constante::DATOS_DE_CONTACTO_6_ERROR_REGISTRO_CIVIL;
+                        }
+
+                        return Constante::DATOS_DE_CONTACTO_5_CIUDADANO_NO_OK_REGITRO_CIVIL;
+                    }
+
                     Cache::put($cacheKey, $personaWs, $ttl);
 
                     if ($intento > 1) {
@@ -208,7 +241,7 @@ class ApiRunificador extends Controller
 
                 if (
                     isset($personaWs->Glosa) &&
-                    str_contains($personaWs->Glosa, 'No responde RC')
+                    $this->glosaIndicaRegistroCivilNoDisponible($personaWs->Glosa)
                 ) {
                     return Constante::DATOS_DE_CONTACTO_6_ERROR_REGISTRO_CIVIL;
                 }
@@ -312,6 +345,40 @@ class ApiRunificador extends Controller
         }
 
         return Constante::DATOS_DE_CONTACTO_3_ERROR_INESPERADO_RUNIFICADOR;
+    }
+
+    /**
+     * Determina si la respuesta del Runificador contiene datos de la persona.
+     *
+     * El servicio puede responder Estado "OK" con Nombres vacío cuando la
+     * consulta al Registro Civil está desactivada; esa respuesta no debe
+     * tratarse como una persona válida ni cachearse.
+     *
+     * @param mixed $persona
+     * @return bool
+     */
+    private function personaTieneDatos($persona)
+    {
+        if (!is_object($persona)) {
+            return false;
+        }
+
+        return isset($persona->Nombres) && trim((string) $persona->Nombres) !== '';
+    }
+
+    /**
+     * Determina si la glosa indica que el Registro Civil no está disponible.
+     *
+     * @param mixed $glosa
+     * @return bool
+     */
+    private function glosaIndicaRegistroCivilNoDisponible($glosa)
+    {
+        $glosa = (string) $glosa;
+
+        return stripos($glosa, 'desactivad') !== false
+            || stripos($glosa, 'deshabilitad') !== false
+            || stripos($glosa, 'No responde RC') !== false;
     }
 
     /**

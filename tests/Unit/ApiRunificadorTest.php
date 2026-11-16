@@ -231,6 +231,112 @@ class ApiRunificadorTest extends TestCase
     }
 
     /**
+     * Si el Runificador responde Estado "OK" pero sin datos (consulta a RC
+     * desactivada), no debe cachearse y debe retornar error de Registro Civil.
+     */
+    public function testNoCacheaRespuestaOkSinDatosYRetornaErrorRegistroCivil()
+    {
+        $historial = [];
+
+        $api = $this->crearApi([
+            $this->respuestaToken('token-1'),
+            $this->respuestaJson([
+                'RUN' => '12345678',
+                'DV' => '9',
+                'Nombres' => '',
+                'ApellidoPaterno' => '',
+                'ApellidoMaterno' => '',
+                'FechaNacimiento' => '',
+                'Estado' => 'OK',
+                'Glosa' => 'Se encuentra desactivado la consulta a registro civil',
+                'DiasEnCache' => 0,
+            ]),
+        ], $historial);
+
+        $resultado = $api->getPersona('12345678', '9');
+
+        $this->assertSame(Constante::DATOS_DE_CONTACTO_6_ERROR_REGISTRO_CIVIL, $resultado);
+        $this->assertFalse(Cache::has('runificador_prueba_12345678'));
+        $this->assertCount(2, $historial);
+    }
+
+    /**
+     * Una respuesta sin datos que ya estuviera cacheada debe descartarse y la
+     * consulta debe repetirse.
+     */
+    public function testDescartaCacheSinDatosYVuelveAConsultar()
+    {
+        Cache::put('runificador_prueba_12345678', (object) [
+            'Estado' => 'OK',
+            'Nombres' => '',
+            'Glosa' => 'Se encuentra desactivado la consulta a registro civil',
+        ], 600);
+
+        $historial = [];
+
+        $api = $this->crearApi([
+            $this->respuestaToken('token-1'),
+            $this->respuestaPersonaOk(),
+        ], $historial);
+
+        $persona = $api->getPersona('12345678', '9');
+
+        $this->assertSame('OK', $persona->Estado);
+        $this->assertCount(2, $historial);
+        $this->assertTrue(Cache::has('runificador_prueba_12345678'));
+    }
+
+    /**
+     * Sin datos y sin glosa de RC caído se mantiene el comportamiento de
+     * "ciudadano no encontrado".
+     */
+    public function testOkSinDatosSinGlosaDeRcRetornaNoEncontrado()
+    {
+        $historial = [];
+
+        $api = $this->crearApi([
+            $this->respuestaToken('token-1'),
+            $this->respuestaJson([
+                'RUN' => '12345678',
+                'DV' => '9',
+                'Nombres' => '',
+                'Estado' => 'OK',
+                'Glosa' => 'Persona Encontrada en BD',
+            ]),
+        ], $historial);
+
+        $resultado = $api->getPersona('12345678', '9');
+
+        $this->assertSame(Constante::DATOS_DE_CONTACTO_5_CIUDADANO_NO_OK_REGITRO_CIVIL, $resultado);
+        $this->assertFalse(Cache::has('runificador_prueba_12345678'));
+    }
+
+    /**
+     * Una glosa de RC desactivado con Estado distinto de OK también debe
+     * retornar error de Registro Civil.
+     */
+    public function testGlosaDesactivadoSinEstadoOkRetornaErrorRegistroCivil()
+    {
+        $historial = [];
+
+        $api = $this->crearApi([
+            $this->respuestaToken('token-1'),
+            $this->respuestaJson([
+                'RUN' => '12345678',
+                'DV' => '9',
+                'Nombres' => '',
+                'Estado' => 'ERROR',
+                'Glosa' => 'Se encuentra desactivado la consulta a registro civil',
+            ]),
+        ], $historial);
+
+        $resultado = $api->getPersona('12345678', '9');
+
+        $this->assertSame(Constante::DATOS_DE_CONTACTO_6_ERROR_REGISTRO_CIVIL, $resultado);
+        $this->assertFalse(Cache::has('runificador_prueba_12345678'));
+    }
+
+    /**
      * Construye una instancia de ApiRunificador con un cliente Guzzle simulado.
      *
      * @param array $respuestas Respuestas que entregará el MockHandler en orden.
@@ -296,9 +402,35 @@ class ApiRunificadorTest extends TestCase
             200,
             ['Content-Type' => 'application/json'],
             json_encode([
+                'RUN' => '12345678',
+                'DV' => '9',
+                'Nombres' => 'PERSONA DE PRUEBA',
+                'ApellidoPaterno' => 'PRUEBA',
+                'ApellidoMaterno' => 'PRUEBA',
+                'FechaNacimiento' => '19900101',
+                'FechaDefuncion' => '0',
+                'Sexo' => 'MASCULINO',
+                'EstadoCivil' => 'SOLTERO',
                 'Estado' => 'OK',
-                'Nombre' => 'PERSONA DE PRUEBA',
+                'Glosa' => 'Persona Encontrada en BD',
+                'DiasEnCache' => 0,
             ])
+        );
+    }
+
+    /**
+     * Respuesta JSON arbitraria del Runificador.
+     *
+     * @param array $data
+     * @param int $status
+     * @return Response
+     */
+    private function respuestaJson(array $data, $status = 200)
+    {
+        return new Response(
+            $status,
+            ['Content-Type' => 'application/json'],
+            json_encode($data)
         );
     }
 
