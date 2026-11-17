@@ -111,7 +111,22 @@ return array(
         |     'functions' => array('GET_PERSONA'),
         | ),
         */
-        'expected_schemas' => array(),
+        // Objetos declarados a partir de los modelos de la aplicacion. Completar
+        // con las vistas, funciones y procedimientos que se quieran auditar.
+        'expected_schemas' => array(
+            'ASIGNACION' => array(
+                'tables' => array(
+                    'PERSONAS',
+                    'FICHAS',
+                    'GRUPOS_FAMILIARES',
+                    'FUENTES',
+                    'AB_SOLICITUD',
+                ),
+                'columns' => array(
+                    'PERSONAS.PER_RUN',
+                ),
+            ),
+        ),
 
         /*
         | Optional flat checklist (merged with expected_schemas), with fully
