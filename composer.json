@@ -28,7 +28,7 @@
         "rap2hpoutre/laravel-log-viewer": "*",
         "simplesoftwareio/simple-qrcode": "^4.1",
         "yajra/laravel-oci8": "^7.0",
-        "validador/core": "dev-master"
+        "validador/core": "^1.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.8",
@@ -77,6 +77,10 @@
         ]
     },
     "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/ysaiascampos/validador.git"
+        },
         {
             "type": "vcs",
             "url": "https://git.mds.cl/publico/packages/rsh/validador-rfc.git"
