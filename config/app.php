@@ -166,6 +166,7 @@ return [
         /*
          * Package Service Providers...
          */
+        Vendor\Validator\Providers\ValidatorServiceProvider::class,
 
         /*
          * Application Service Providers...
