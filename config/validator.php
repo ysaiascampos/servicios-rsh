@@ -25,8 +25,11 @@ return array(
             'enabled'  => !in_array(strtolower(trim((string) env('VALIDATOR_REPORT_AUTH', '1'))), array('0', 'false', 'no', 'off'), true),
             'user'     => env('VALIDATOR_REPORT_USER', ''),
             'password' => env('VALIDATOR_REPORT_PASSWORD', ''),
+            'secret'   => env('VALIDATOR_REPORT_SECRET', ''),
             'realm'    => env('VALIDATOR_REPORT_REALM', 'Validador RSH'),
         ),
+        // Validez del enlace firmado para descargar el PDF (segundos).
+        'download_ttl' => (int) env('VALIDATOR_REPORT_DOWNLOAD_TTL', 300),
     ),
 
     /*
