@@ -14,6 +14,22 @@ return array(
     'api_token' => env('VALIDATOR_API_TOKEN', ''),
 
     /*
+    | Reporte visual (validator/report y validator/report/pdf). Protegido con
+    | Basic auth sin sesion: sin VALIDATOR_REPORT_USER/PASSWORD responde 401.
+    */
+    'report' => array(
+        'enabled'    => true,
+        'title'      => env('VALIDATOR_REPORT_TITLE', 'Reporte de validacion'),
+        'middleware' => array(),
+        'auth'       => array(
+            'enabled'  => !in_array(strtolower(trim((string) env('VALIDATOR_REPORT_AUTH', '1'))), array('0', 'false', 'no', 'off'), true),
+            'user'     => env('VALIDATOR_REPORT_USER', ''),
+            'password' => env('VALIDATOR_REPORT_PASSWORD', ''),
+            'realm'    => env('VALIDATOR_REPORT_REALM', 'Validador RSH'),
+        ),
+    ),
+
+    /*
     |--------------------------------------------------------------------------
     | Default Connection
     |--------------------------------------------------------------------------
